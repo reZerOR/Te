@@ -33,6 +33,7 @@ async function run() {
 
     // database collections 
     const brandCollection = client.db('brandShopDB').collection('brands');
+    const productCollection = client.db('brandShopDB').collection('products')
 
 
 
@@ -42,6 +43,24 @@ async function run() {
         const cursor = brandCollection.find()
         const result = await cursor.toArray()
         res.send(result);
+    })
+
+    // find oparation for just one brand
+    app.get('/brands/:name', async(req, res)=>{
+      const name = req.params.name
+      const query = {brand_name: name}
+      const result = await brandCollection.findOne(query)
+      res.send(result)
+
+    })
+
+    app.get('/products/:name', async(req, res)=> {
+      const name = req.params.name;
+      console.log(name)
+      const query = {brand_name: name}
+      const cursor = productCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
     })
 
 
