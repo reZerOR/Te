@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000
@@ -34,6 +34,7 @@ async function run() {
     // database collections 
     const brandCollection = client.db('brandShopDB').collection('brands');
     const productCollection = client.db('brandShopDB').collection('products')
+    const curtCollection = client.db('brandShopDB').collection('curt')
 
 
 
@@ -54,6 +55,7 @@ async function run() {
 
     })
 
+    // product find many oparation
     app.get('/products/:name', async(req, res)=> {
       const name = req.params.name;
       console.log(name)
@@ -62,6 +64,80 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+
+    // product find one oparation
+    app.get('/productdetails/:id', async(req, res)=>{
+      const id = req.params.id
+      const query = {_id: new ObjectId(id)}
+      const result = await productCollection.findOne(query)
+      res.send(result)
+    })
+
+    // curt read oparation 
+    app.get('/curt', async(req, res)=>{
+        const cursor = curtCollection.find()
+        const result = await cursor.toArray()
+        res.send(result);
+    })
+
+
+    // POST oparations
+
+
+    // curt post oparation
+    app.post('/curt', async(req, res)=>{
+      const product = req.body
+      const result = await curtCollection.insertOne(product)
+      console.log(product)
+      res.send(result)
+
+    })
+
+
+    // product post opration
+    app.post("/products", async(req, res)=>{
+      const product = req.body
+      const result = await productCollection.insertOne(product)
+      console.log(product)
+      res.send(result)
+    })
+
+
+    // delete oparation
+      app.delete('/curt/:id', async(req, res) => {
+        const id = req.params.id
+        console.log(id)
+        const query = {_id: new ObjectId(id)}
+        const result =await curtCollection.deleteOne(query)
+        res.send(result)
+    })
+
+
+    // Put oparations
+        app.put('/products/:id', async(req, res)=>{
+      const id = req.params.id
+      const updateProduct = req.body
+
+      // update database
+      const filter = {_id: new ObjectId(id)}
+      const option = {upsert: true}
+      const product = {
+        $set:{
+          name: updateProduct.name, 
+          brand_name: updateProduct.brand_name,
+          price: updateProduct.price,
+          rating: updateProduct.rating,
+          type: updateProduct.type,
+          image: updateProduct.image,
+        }
+      }
+      const result = await productCollection.updateOne(filter, product, option);
+      res.send(result)
+
+
+    })
+
+
 
 
 
