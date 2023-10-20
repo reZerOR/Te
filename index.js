@@ -46,7 +46,7 @@ async function run() {
         res.send(result);
     })
 
-    // find oparation for just one brand
+    // brand  find one oparation
     app.get('/brands/:name', async(req, res)=>{
       const name = req.params.name
       const query = {brand_name: name}
